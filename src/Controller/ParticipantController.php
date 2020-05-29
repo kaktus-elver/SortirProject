@@ -327,7 +327,7 @@ class ParticipantController extends AbstractController
 
             // On génère l'e-mail
             $message = (new \Swift_Message('Mot de passe oublié'))
-                ->setFrom(['nicolasbacon.nb@gmail.com' => 'Nicolas BACON'])
+                ->setFrom(['nicolasbacon.nb@gmail.com' => 'Sortir.com'])
                 ->setTo([$participant->getMail()])
                 ->setBody(
                     "Bonjour,<br><br>Une demande de réinitialisation de mot de passe a été effectuée. Veuillez cliquer sur le lien suivant : " . $url,

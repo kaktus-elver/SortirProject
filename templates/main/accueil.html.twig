@@ -35,20 +35,23 @@
 
             {{ form_widget(researchForm.sortiePasse) }}
             {{ form_label(researchForm.sortiePasse) }}<br>
+            <div>
             {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
             <div class="search-button">
                 <button class="btn border active" type="submit" value="rechercher">Rechercher</button>
             </div>
             {% endif %}
+                <div class="hidden-xs">
+                    <div class="add-button">
+                        <button class="btn border active z" id="ajouterSortie"><a href="{{ path('add_sortie') }}">Ajouter une sortie</a></button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     {{ form_end(researchForm) }}
 </div>
-    <div class="hidden-xs">
-        <div class="add-button">
-            <button class="btn border active z" id="ajouterSortie"><a href="{{ path('add_sortie') }}">Ajouter une sortie</a></button>
-        </div>
-    </div>
+
 <div class="tableauAffich">
     <table class="table  table-responsive">
      <thead>
