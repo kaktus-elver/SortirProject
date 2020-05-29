@@ -315,11 +315,11 @@ class ParticipantController extends AbstractController
                 $entityManager->flush();
             } catch (\Exception $e) {
                 $this->addFlash('warning', $e->getMessage());
-                return $this->redirectToRoute('app_login');
+                return $this->redirectToRoute('login');
             }
 
-            $transport = (new \Swift_SmtpTransport('smtp.live.com', 25))
-                ->setUsername('urbman78@hotmail.fr')
+            $transport = (new \Swift_SmtpTransport('smtp.gmail.com', 465, ))
+                ->setUsername('kaktus.elver@gmail.com')
                 ->setPassword('Choset78')
             ;
 
@@ -339,14 +339,23 @@ class ParticipantController extends AbstractController
                 )
             ;
 
-            // On envoie l'e-mail
-            $mailer->send($message);
+            try{
+                // On envoie l'e-mail
+                $mailer->send($message);
 
-            // On crée le message flash de confirmation
-            $this->addFlash('message', 'E-mail de réinitialisation du mot de passe envoyé !');
+                // On crée le message flash de confirmation
+                $this->addFlash('message', 'E-mail de réinitialisation du mot de passe envoyé !');
+            } catch (\Exception $e) {
+                $this->addFlash('warning', $e->getMessage());
+                return $this->render('security/reset_password.html.twig',['token' => $token]);
+            }
 
             // On redirige vers la page de login
             return $this->redirectToRoute('login');
+
+
+
+
         }
 
         // On envoie le formulaire à la vue
@@ -365,7 +374,7 @@ class ParticipantController extends AbstractController
         if ($user === null) {
             // On affiche une erreur
             $this->addFlash('danger', 'Token Inconnu');
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute('login');
         }
 
         // Si le formulaire est envoyé en méthode post
@@ -374,7 +383,7 @@ class ParticipantController extends AbstractController
             $user->setResetToken(null);
 
             // On chiffre le mot de passe
-            $user->setPassword($passwordEncoder->encodePassword($user, $request->request->get('password')));
+            $user->setPassword($passwordEncoder->encodePassword($user,$request->request->get('password')));
 
             // On stocke
             $entityManager = $this->getDoctrine()->getManager();
@@ -385,7 +394,7 @@ class ParticipantController extends AbstractController
             $this->addFlash('message', 'Mot de passe mis à jour');
 
             // On redirige vers la page de connexion
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute('login');
         }else {
             // Si on n'a pas reçu les données, on affiche le formulaire
             return $this->render('security/reset_password.html.twig', ['token' => $token]);
