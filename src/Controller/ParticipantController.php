@@ -88,10 +88,6 @@ class ParticipantController extends AbstractController
                 }
                 $participant->setImageFilename($newFilename);
             }
-           /* $participant->setImageFilename(
-                new File($this->getParameter('image_directory').'/'.$participant->getBrochureFilename())
-            );*/
-            //{{ form_row(registerForm.image) }}
 
             $password = $passwordEncoder->encodePassword($participant, $participant->getPassword());
             $participant->setPassword($password);
@@ -301,7 +297,7 @@ class ParticipantController extends AbstractController
                 $this->addFlash('danger', 'Cette adresse e-mail est inconnue');
 
                 // On retourne sur la page de connexion
-                return $this->redirectToRoute('app_login');
+                return $this->redirectToRoute('login');
             }
 
             // On génère un token
@@ -318,9 +314,9 @@ class ParticipantController extends AbstractController
                 return $this->redirectToRoute('login');
             }
 
-            $transport = (new \Swift_SmtpTransport('smtp.gmail.com', 465, ))
-                ->setUsername('kaktus.elver@gmail.com')
-                ->setPassword('Choset78')
+            $transport = (new \Swift_SmtpTransport('smtp.gmail.com', 465, 'ssl'))
+                ->setUsername('nicolasbacon.nb@gmail.com')
+                ->setPassword('uphajnxisbhreqkj')
             ;
 
             // Create the Mailer using your created Transport
@@ -331,8 +327,8 @@ class ParticipantController extends AbstractController
 
             // On génère l'e-mail
             $message = (new \Swift_Message('Mot de passe oublié'))
-                ->setFrom('urbman78@hotmail.fr')
-                ->setTo($participant->getMail())
+                ->setFrom(['nicolasbacon.nb@gmail.com' => 'Nicolas BACON'])
+                ->setTo([$participant->getMail()])
                 ->setBody(
                     "Bonjour,<br><br>Une demande de réinitialisation de mot de passe a été effectuée. Veuillez cliquer sur le lien suivant : " . $url,
                     'text/html'
@@ -343,18 +339,17 @@ class ParticipantController extends AbstractController
                 // On envoie l'e-mail
                 $mailer->send($message);
 
+                $transport = new \Swift_SendmailTransport('/usr/sbin/sendmail -bs');
                 // On crée le message flash de confirmation
                 $this->addFlash('message', 'E-mail de réinitialisation du mot de passe envoyé !');
+
             } catch (\Exception $e) {
                 $this->addFlash('warning', $e->getMessage());
-                return $this->render('security/reset_password.html.twig',['token' => $token]);
+
+            } finally {
+                // On redirige vers la page de login
+                return $this->redirectToRoute('login');
             }
-
-            // On redirige vers la page de login
-            return $this->redirectToRoute('login');
-
-
-
 
         }
 
@@ -383,7 +378,7 @@ class ParticipantController extends AbstractController
             $user->setResetToken(null);
 
             // On chiffre le mot de passe
-            $user->setPassword($passwordEncoder->encodePassword($user,$request->request->get('password')));
+            $user->setPassword($passwordEncoder->encodePassword($user, $request->request->get('password')));
 
             // On stocke
             $entityManager = $this->getDoctrine()->getManager();
